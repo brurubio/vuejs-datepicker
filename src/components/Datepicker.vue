@@ -13,6 +13,7 @@
       :placeholder="placeholder"
       :inputClass="inputClass"
       :typeable="typeable"
+      :format-typed-date="formatTypedDate"
       :clearButton="clearButton"
       :clearButtonIcon="clearButtonIcon"
       :calendarButton="calendarButton"
@@ -22,6 +23,7 @@
       :required="required"
       :bootstrapStyling="bootstrapStyling"
       :use-utc="useUtc"
+      :customMask="customMask"
       @showCalendar="showCalendar"
       @closeCalendar="close"
       @typedDate="setTypedDate"
@@ -145,7 +147,9 @@ export default {
     disabled: Boolean,
     required: Boolean,
     typeable: Boolean,
+    formatTypedDate: Function,
     useUtc: Boolean,
+    customMask: String,
     minimumView: {
       type: String,
       default: 'day'

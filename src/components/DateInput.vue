@@ -26,7 +26,10 @@
       @click="showCalendar"
       @keyup="parseTypedDate"
       @blur="inputBlurred"
-      autocomplete="off">
+      autocomplete="off"
+      :customMask="customMask"
+      v-mask="computedMask"
+    >
     <!-- Clear Button -->
     <span v-if="clearButton && selectedDate" class="vdp-datepicker__clear-button" :class="{'input-group-append' : bootstrapStyling}" @click="clearDate()">
       <span :class="{'input-group-text' : bootstrapStyling}">
@@ -40,6 +43,7 @@
 </template>
 <script>
 import { makeDateUtils } from '../utils/DateUtils'
+import {mask} from 'vue-the-mask'
 export default {
   props: {
     selectedDate: Date,
@@ -61,18 +65,32 @@ export default {
     disabled: Boolean,
     required: Boolean,
     typeable: Boolean,
+    formatTypedDate: Function,
     bootstrapStyling: Boolean,
-    useUtc: Boolean
+    useUtc: Boolean,
+    customMask: String
   },
+
+  directives: {mask},
+
   data () {
     const constructedDateUtils = makeDateUtils(this.useUtc)
     return {
       input: null,
       typedDate: false,
-      utils: constructedDateUtils
+      utils: constructedDateUtils,
+      formattedMask: null
     }
   },
   computed: {
+    computedMask () {
+      let mask = this.customMask || this.format
+      if (!this.formattedMask) {
+        this.formattedMask = mask.replace(/([a-zA-Z])/gi, '#')
+      }
+      return this.formattedMask
+    },
+
     formattedValue () {
       if (!this.selectedDate) {
         return null
@@ -118,10 +136,10 @@ export default {
       }
 
       if (this.typeable) {
-        const typedDate = Date.parse(this.input.value)
-        if (!isNaN(typedDate)) {
+        const parsedDate = Date.parse(this.getTypedDate(this.input.value))
+        if (!isNaN(parsedDate)) {
           this.typedDate = this.input.value
-          this.$emit('typedDate', new Date(this.typedDate))
+          this.$emit('typedDate', new Date(parsedDate))
         }
       }
     },
@@ -130,19 +148,28 @@ export default {
      * called once the input is blurred
      */
     inputBlurred () {
-      if (this.typeable && isNaN(Date.parse(this.input.value))) {
+      if (this.typeable && isNaN(Date.parse(this.getTypedDate(this.input.value)))) {
         this.clearDate()
         this.input.value = null
         this.typedDate = null
       }
-
       this.$emit('closeCalendar')
     },
+
     /**
      * emit a clearDate event
      */
     clearDate () {
       this.$emit('clearDate')
+    },
+    /**
+     * format Date with regular or custom function
+     */
+    getTypedDate (input) {
+      let date = typeof this.formatTypedDate === 'function'
+        ? this.formatTypedDate(input)
+        : input
+      return date
     }
   },
   mounted () {
