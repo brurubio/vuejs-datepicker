@@ -23,6 +23,7 @@
       :required="required"
       :bootstrapStyling="bootstrapStyling"
       :use-utc="useUtc"
+      :customMask="customMask"
       @showCalendar="showCalendar"
       @closeCalendar="close"
       @typedDate="setTypedDate"
@@ -148,6 +149,7 @@ export default {
     typeable: Boolean,
     formatTypedDate: Function,
     useUtc: Boolean,
+    customMask: String,
     minimumView: {
       type: String,
       default: 'day'

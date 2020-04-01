@@ -26,7 +26,10 @@
       @click="showCalendar"
       @keyup="parseTypedDate"
       @blur="inputBlurred"
-      autocomplete="off">
+      autocomplete="off"
+      :customMask="customMask"
+      v-mask="computedMask"
+    >
     <!-- Clear Button -->
     <span v-if="clearButton && selectedDate" class="vdp-datepicker__clear-button" :class="{'input-group-append' : bootstrapStyling}" @click="clearDate()">
       <span :class="{'input-group-text' : bootstrapStyling}">
@@ -40,6 +43,7 @@
 </template>
 <script>
 import { makeDateUtils } from '../utils/DateUtils'
+import {mask} from 'vue-the-mask'
 export default {
   props: {
     selectedDate: Date,
@@ -63,17 +67,30 @@ export default {
     typeable: Boolean,
     formatTypedDate: Function,
     bootstrapStyling: Boolean,
-    useUtc: Boolean
+    useUtc: Boolean,
+    customMask: String
   },
+
+  directives: {mask},
+
   data () {
     const constructedDateUtils = makeDateUtils(this.useUtc)
     return {
       input: null,
       typedDate: false,
-      utils: constructedDateUtils
+      utils: constructedDateUtils,
+      formattedMask: null
     }
   },
   computed: {
+    computedMask () {
+      let mask = this.customMask || this.format
+      if (!this.formattedMask) {
+        this.formattedMask = mask.replace(/([a-zA-Z])/gi, '#')
+      }
+      return this.formattedMask
+    },
+
     formattedValue () {
       if (!this.selectedDate) {
         return null
@@ -136,9 +153,9 @@ export default {
         this.input.value = null
         this.typedDate = null
       }
-
       this.$emit('closeCalendar')
     },
+
     /**
      * emit a clearDate event
      */
