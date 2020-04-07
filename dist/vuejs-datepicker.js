@@ -440,7 +440,11 @@
     },
     computed: {
       computedMask: function computedMask() {
-        var mask = this.customMask || this.format;
+        var mask = typeof this.format === 'function' ? this.customMask : this.customMask || this.format;
+
+        if (!mask) {
+          return '';
+        }
 
         if (!this.formattedMask) {
           this.formattedMask = mask.replace(/([a-zA-Z])/gi, '#');
