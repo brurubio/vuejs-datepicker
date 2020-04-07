@@ -84,7 +84,14 @@ export default {
   },
   computed: {
     computedMask () {
-      let mask = this.customMask || this.format
+      let mask = typeof this.format === 'function'
+        ? this.customMask
+        : this.customMask || this.format
+
+      if (!mask) {
+        return ''
+      }
+
       if (!this.formattedMask) {
         this.formattedMask = mask.replace(/([a-zA-Z])/gi, '#')
       }
